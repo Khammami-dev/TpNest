@@ -1,10 +1,12 @@
 import { TodoStatusEnum } from '../enums/TodoStatusEnum';
 
 
-export class todo {
+export class Todo{
   id: string;
   name: string;
   description: string;
   date: Date;
-  status: TodoStatusEnum;
+  status: TodoStatusEnum; // la status ne peut etre que en attente en voours ou finaliser seulement
+
+
 }
