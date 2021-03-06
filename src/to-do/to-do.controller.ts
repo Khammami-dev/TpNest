@@ -1,38 +1,29 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Req, Request } from '@nestjs/common';
 import { TodoStatusEnum } from './enums/TodoStatusEnum';
 import { v4 as uuidv4 } from 'uuid';
 import { Todo } from './modele/todo';
+import { AddTodoDTO } from './DTO/AddTodoDTO';
+import { todoService } from '../todo/todo.service';
+import { PatchTodoDTO } from './DTO/PatchTodoDTO';
 
 @Controller('to-do')
 export class ToDoController {
+  constructor(private todoService: todoService) {
+  }
 
   todos: Todo [] = []; // creation objet todos de type tableau destodo qui est vide au départ
 
   @Get('')
-  getTodos(): Todo[] {
+  getTodos(@Req() req:Request ): Todo[] {
+    console.log(req);
     return this.todos;
   }
   @Post('Newtodo')
-  addTodo(@Body() todoData
+  addTodo(
+    @Body() todoData: AddTodoDTO
   ): Todo {
-    /*dans l'objet todoData j'ai les deux propriétés : name, desription: récupére moi le contenu
-    /*et met dans name et description dans ce cas name ='lundi' ; c'est description des objets
-    /* 1- récupérer les info envoyer par l utilisateur avec @Body
-       2- Instancier todo
-       3- ajouter les infos manquante : id, date, status
-       4- ajouter dans le tableau
-       5- retourner l'objet qu'on a créer todo
-       */
-    const {name, description} = todoData;
-    const todo = new Todo();
-    todo.id = uuidv4();
-    todo.description = description;
-    todo.name = name;
-    todo.date = new Date();
-    todo.status = TodoStatusEnum.waiting;
 
-    this.todos.push(todo);
-    return todo;
+    return this.todoService.addTodo();
   }
   @Get(':id')
   getTodoById(
@@ -55,7 +46,7 @@ export class ToDoController {
 
   }
   @Patch('update/:id')
-  ModifierTodo(@Param('id') id, @Body() todoData): Todo{
+  ModifierTodo(@Param('id') id, @Body() todoData : Partial<PatchTodoDTO>): Todo{
     const todo = this.todos.find((todo : Todo) => todo.id === id);
     if(todo != todoData){
       todo.name = todoData.name;
@@ -67,7 +58,7 @@ export class ToDoController {
 
 
   @Put('updateP/:id')
-  ModifierPartieTodo(@Param('id') id, @Body() todoData: Partial<Todo>) : Todo{
+  ModifierPartieTodo(@Param('id') id, @Body() todoData: ) : Todo{
     //<partial> on utilise si il passe une partie de l'objet dans le body
     const todo = this.todos.find((todo : Todo) => todo.id === id);
     if (todo.name != todoData.name){
